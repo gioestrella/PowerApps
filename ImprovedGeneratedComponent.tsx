@@ -19,10 +19,8 @@ import {
     AddRegular,
     CheckmarkCircleRegular,
     ErrorCircleRegular,
-    ClockRegular,
 } from "@fluentui/react-icons";
 import { DatePicker } from "@fluentui/react-datepicker-compat";
-import { TimePicker } from "@fluentui/react-timepicker-compat";
 import type {
     GeneratedComponentProps,
     ReadableTableRow,
@@ -106,12 +104,6 @@ const useStyles = makeStyles({
         alignItems: "start",
         marginBottom: tokens.spacingVerticalM,
     },
-    timeGrid: {
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr 1fr 120px",
-        gap: tokens.spacingHorizontalM,
-        alignItems: "start",
-    },
     formField: {
         display: "flex",
         flexDirection: "column",
@@ -152,17 +144,6 @@ const useStyles = makeStyles({
     invalidBorder: {
         borderLeft: `4px solid ${tokens.colorPaletteRedBorder2}`,
     },
-    durationDisplay: {
-        display: "flex",
-        alignItems: "center",
-        gap: tokens.spacingHorizontalXS,
-        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
-        backgroundColor: tokens.colorNeutralBackground3,
-        borderRadius: tokens.borderRadiusMedium,
-        fontSize: tokens.fontSizeBase400,
-        fontWeight: tokens.fontWeightSemibold,
-        color: tokens.colorBrandForeground1,
-    },
 });
 
 interface EntryRow {
@@ -170,11 +151,9 @@ interface EntryRow {
     technicianId: string;
     workCenterId: string;
     activityId: string;
+    quantity: string;
     startDate: Date | null;
-    startTime: Date | null;
     endDate: Date | null;
-    endTime: Date | null;
-    durationHours: number;
 }
 
 interface ComboboxInputState {
@@ -197,11 +176,9 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
             technicianId: "",
             workCenterId: "",
             activityId: "",
+            quantity: "",
             startDate: new Date(),
-            startTime: null,
             endDate: new Date(),
-            endTime: null,
-            durationHours: 0,
         },
     ]);
     const [inputValues, setInputValues] = useState<ComboboxInputState>({
@@ -240,57 +217,23 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
         fetchData();
     }, [dataApi]);
 
-    // Calculate duration when start/end times change
-    const calculateDuration = (startDate: Date | null, startTime: Date | null, endDate: Date | null, endTime: Date | null): number => {
-        if (!startDate || !startTime || !endDate || !endTime) {
-            return 0;
-        }
-
-        // Combine date and time
-        const start = new Date(startDate);
-        start.setHours(startTime.getHours(), startTime.getMinutes(), 0, 0);
-
-        const end = new Date(endDate);
-        end.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0);
-
-        // Calculate difference in hours
-        const diffMs = end.getTime() - start.getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-
-        return diffHours > 0 ? Math.round(diffHours * 100) / 100 : 0;
-    };
-
     const isRowValid = (row: EntryRow): boolean => {
         return !!(
             row.technicianId &&
             row.workCenterId &&
             row.activityId &&
+            row.quantity &&
+            parseFloat(row.quantity) > 0 &&
             row.startDate &&
-            row.startTime &&
             row.endDate &&
-            row.endTime &&
-            row.durationHours > 0
+            row.startDate <= row.endDate
         );
     };
 
     const handleRowChange = (id: string, field: keyof EntryRow, value: any) => {
-        setRows(prevRows => prevRows.map(row => {
-            if (row.id !== id) return row;
-
-            const updatedRow = { ...row, [field]: value };
-
-            // Auto-calculate duration when time fields change
-            if (field === 'startDate' || field === 'startTime' || field === 'endDate' || field === 'endTime') {
-                updatedRow.durationHours = calculateDuration(
-                    field === 'startDate' ? value : row.startDate,
-                    field === 'startTime' ? value : row.startTime,
-                    field === 'endDate' ? value : row.endDate,
-                    field === 'endTime' ? value : row.endTime
-                );
-            }
-
-            return updatedRow;
-        }));
+        setRows(prevRows => prevRows.map(row =>
+            row.id === id ? { ...row, [field]: value } : row
+        ));
 
         // Clear messages when user makes changes
         if (successMessage) setSuccessMessage(null);
@@ -317,11 +260,9 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
                 technicianId: "",
                 workCenterId: "",
                 activityId: "",
+                quantity: "",
                 startDate: now,
-                startTime: null,
                 endDate: now,
-                endTime: null,
-                durationHours: 0,
             }
         ]);
         setInputValues(prev => ({
@@ -362,21 +303,14 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
                 validRows.map(async (row) => {
                     const techName = technicians.find(t => t.cr17f_technician1id === row.technicianId)?.cr17f_technicianname || "Unknown";
 
-                    // Combine date and time for submission
-                    const clockIn = new Date(row.startDate!);
-                    clockIn.setHours(row.startTime!.getHours(), row.startTime!.getMinutes(), 0, 0);
-
-                    const clockOut = new Date(row.endDate!);
-                    clockOut.setHours(row.endTime!.getHours(), row.endTime!.getMinutes(), 0, 0);
-
                     const payload: WritableTableRow<any> = {
-                        cr17f_timeentryname: `${techName} - ${clockIn.toLocaleDateString()} - ${row.durationHours}h`,
+                        cr17f_timeentryname: `${techName} - ${row.startDate!.toLocaleDateString()}`,
                         _cr17f_technicianname_value: row.technicianId,
                         _cr17f_workcentername_value: row.workCenterId,
                         _cr17f_activityname_value: row.activityId,
-                        cr17f_clockintime: clockIn,
-                        cr17f_clockouttime: clockOut,
-                        cr17f_durationhours: row.durationHours,
+                        cr17f_clockintime: row.startDate,
+                        cr17f_clockouttime: row.endDate,
+                        cr17f_durationhours: parseFloat(row.quantity),
                     };
                     return await dataApi.createRow("cr17f_techniciantimeentry", payload);
                 })
@@ -394,11 +328,9 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
                     technicianId: "",
                     workCenterId: "",
                     activityId: "",
+                    quantity: "",
                     startDate: now,
-                    startTime: null,
                     endDate: now,
-                    endTime: null,
-                    durationHours: 0,
                 };
                 setRows([resetRow]);
                 setInputValues({
@@ -421,7 +353,8 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
 
     const getTotalHours = () => {
         return rows.reduce((sum, row) => {
-            return sum + (row.durationHours || 0);
+            const qty = parseFloat(row.quantity);
+            return sum + (isNaN(qty) ? 0 : qty);
         }, 0).toFixed(2);
     };
 
@@ -611,7 +544,20 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
                                 </div>
                             </div>
 
-                            <div className={styles.timeGrid}>
+                            <div className={styles.formGrid}>
+                                <div className={styles.formField}>
+                                    <Text className={styles.label}>
+                                        Quantity (hours) <span className={styles.required}>*</span>
+                                    </Text>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter hours"
+                                        value={row.quantity}
+                                        onChange={(_, data) => handleRowChange(row.id, "quantity", data.value)}
+                                        aria-label="Enter quantity in hours"
+                                    />
+                                </div>
+
                                 <div className={styles.formField}>
                                     <Text className={styles.label}>
                                         Start Date <span className={styles.required}>*</span>
@@ -626,18 +572,6 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
 
                                 <div className={styles.formField}>
                                     <Text className={styles.label}>
-                                        Clock In Time <span className={styles.required}>*</span>
-                                    </Text>
-                                    <TimePicker
-                                        placeholder="Select time"
-                                        value={row.startTime || undefined}
-                                        onTimeChange={(_, data) => handleRowChange(row.id, "startTime", data.selectedTime || null)}
-                                        aria-label="Select clock in time"
-                                    />
-                                </div>
-
-                                <div className={styles.formField}>
-                                    <Text className={styles.label}>
                                         End Date <span className={styles.required}>*</span>
                                     </Text>
                                     <DatePicker
@@ -646,28 +580,6 @@ const GeneratedComponent: React.FC<GeneratedComponentProps> = ({ dataApi }) => {
                                         onSelectDate={(date) => handleRowChange(row.id, "endDate", date || null)}
                                         aria-label="Select end date"
                                     />
-                                </div>
-
-                                <div className={styles.formField}>
-                                    <Text className={styles.label}>
-                                        Clock Out Time <span className={styles.required}>*</span>
-                                    </Text>
-                                    <TimePicker
-                                        placeholder="Select time"
-                                        value={row.endTime || undefined}
-                                        onTimeChange={(_, data) => handleRowChange(row.id, "endTime", data.selectedTime || null)}
-                                        aria-label="Select clock out time"
-                                    />
-                                </div>
-
-                                <div className={styles.formField}>
-                                    <Text className={styles.label}>
-                                        Duration (hours)
-                                    </Text>
-                                    <div className={styles.durationDisplay}>
-                                        <ClockRegular />
-                                        {row.durationHours > 0 ? `${row.durationHours}h` : '--'}
-                                    </div>
                                 </div>
                             </div>
                         </Card>
