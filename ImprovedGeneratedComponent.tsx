@@ -38,9 +38,8 @@ const useStyles = makeStyles({
         padding: tokens.spacingHorizontalXL,
         maxWidth: "1800px",
         margin: "0 auto",
-        height: "100vh",
+        minHeight: "100%",
         backgroundColor: tokens.colorNeutralBackground1,
-        overflow: "hidden",
     },
     headerSection: {
         display: "flex",
@@ -119,14 +118,11 @@ const useStyles = makeStyles({
         color: tokens.colorPaletteRedForeground1,
     },
     scrollArea: {
-        flex: 1,
-        overflowY: "auto",
-        overflowX: "hidden",
         display: "flex",
         flexDirection: "column",
         gap: tokens.spacingVerticalM,
         paddingRight: tokens.spacingHorizontalS,
-        minHeight: 0,
+        marginBottom: tokens.spacingVerticalL,
     },
     actionBar: {
         display: "flex",
@@ -135,8 +131,8 @@ const useStyles = makeStyles({
         padding: tokens.spacingVerticalL,
         backgroundColor: tokens.colorNeutralBackground2,
         borderRadius: tokens.borderRadiusMedium,
-        marginTop: "auto",
-        flexShrink: 0,
+        marginTop: tokens.spacingVerticalL,
+        width: "100%",
     },
     validBorder: {
         borderLeft: `4px solid ${tokens.colorPaletteGreenBorder2}`,
