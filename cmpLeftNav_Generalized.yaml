@@ -1,0 +1,424 @@
+# =============================================================================
+# GENERALIZED LEFT NAVIGATION COMPONENT - cmpLeftNav
+# =============================================================================
+#
+# SETUP INSTRUCTIONS:
+# This is a reusable left navigation component. Follow the numbered steps below
+# to customize it for your app. Each control has comments explaining what to change.
+#
+# STEP 1: Create the component and add these Custom Properties (in Component settings):
+#   - CompanyLogo (Input, Image) - Your company logo image
+#   - MenuItems (Input, Table) - Table with columns: Id (Number), Name (Text), Icon (Text, optional)
+#   - SelectedId (Input, Number) - Currently selected menu item ID
+#   - OnItemSelect (Output, Behavior) - Fires when user selects a menu item
+#   - SelectedColor (Input, Color) - Background color for selected item (default: LightBlue)
+#   - UnselectedColor (Input, Color) - Background color for unselected items (default: White)
+#   - ShowUserAvatar (Input, Boolean) - Whether to show user avatar at bottom (default: true)
+#
+# STEP 2: Update each control's properties as described below
+# =============================================================================
+
+ComponentDefinitions:
+  cmpLeftNav:
+    DefinitionType: CanvasComponent
+    AccessAppScope: true
+    CustomProperties:
+      # ----- INPUT PROPERTIES -----
+      CompanyLogo:
+        PropertyKind: Input
+        DisplayName: CompanyLogo
+        Description: Company logo image to display at top of navigation
+        DataType: Image
+        Default: =SampleImage   # INSTRUCTION: Replace with your default image name
+
+      MenuItems:
+        PropertyKind: Input
+        DisplayName: MenuItems
+        Description: Table of menu items with Id (Number), Name (Text), and optional Icon (Text)
+        DataType: Table
+        Default: |
+          =Table(
+            { Id: 1, Name: "Home", Icon: "Home" },
+            { Id: 2, Name: "Settings", Icon: "Settings" }
+          )
+
+      SelectedId:
+        PropertyKind: Input
+        DisplayName: SelectedId
+        Description: The ID of the currently selected menu item
+        DataType: Number
+        Default: =1
+
+      SelectedColor:
+        PropertyKind: Input
+        DisplayName: SelectedColor
+        Description: Background color for selected menu item
+        DataType: Color
+        Default: =Color.LightBlue
+
+      UnselectedColor:
+        PropertyKind: Input
+        DisplayName: UnselectedColor
+        Description: Background color for unselected menu items
+        DataType: Color
+        Default: =Color.White
+
+      BorderColor:
+        PropertyKind: Input
+        DisplayName: BorderColor
+        Description: Border color for selected menu item
+        DataType: Color
+        Default: =Color.Black
+
+      ShowUserAvatar:
+        PropertyKind: Input
+        DisplayName: ShowUserAvatar
+        Description: Whether to show user avatar at bottom
+        DataType: Boolean
+        Default: =true
+
+      NavWidth:
+        PropertyKind: Input
+        DisplayName: NavWidth
+        Description: Width of the navigation bar
+        DataType: Number
+        Default: =80
+
+      # ----- OUTPUT PROPERTIES -----
+      # INSTRUCTION: Add this output property for parent to handle navigation
+      OnItemSelect:
+        PropertyKind: Output
+        DisplayName: OnItemSelect
+        Description: Behavior triggered when a menu item is selected. Use Self.SelectedItem in parent.
+        DataType: Behavior
+        Default: =false
+
+    Properties:
+      Height: =App.DesignHeight
+      # INSTRUCTION: Use component property for width
+      Width: =Self.NavWidth
+      OnReset: =
+        # INSTRUCTION: Component reset - parent should handle resetting SelectedId
+
+    Children:
+      - conRoot:
+          Control: GroupContainer@1.3.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - conMenu:
+                Control: GroupContainer@1.3.0
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Height: =Parent.Height
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutGap: =55
+                  PaddingBottom: =10
+                  PaddingTop: =15
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  # INSTRUCTION: References component width
+                  Width: =cmpLeftNav.NavWidth
+                Children:
+                  # =========================================================
+                  # COMPANY LOGO SECTION
+                  # =========================================================
+                  - conCompany:
+                      Control: GroupContainer@1.3.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =65
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =1
+                        LayoutJustifyContent: =LayoutJustifyContent.Center
+                        LayoutMinWidth: =0
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =Parent.Width
+                        Y: =0
+                      Children:
+                        - imgCompanyLogo:
+                            Control: Image@2.2.3
+                            Properties:
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =2
+                              DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                              DisabledFill: =RGBA(0, 0, 0, 0)
+                              DisplayMode: =DisplayMode.View
+                              FocusedBorderThickness: =4
+                              Height: =60
+                              HoverBorderColor: =RGBA(0, 0, 0, 0)
+                              HoverFill: =RGBA(0, 0, 0, 0)
+                              # ==================================================
+                              # INSTRUCTION: Image - uses component's CompanyLogo property
+                              # In your control, paste: cmpLeftNav.CompanyLogo
+                              # ==================================================
+                              Image: =cmpLeftNav.CompanyLogo
+                              ImagePosition: =ImagePosition.Fill
+                              PressedBorderColor: =RGBA(0, 0, 0, 0)
+                              PressedFill: =RGBA(0, 0, 0, 0)
+                              RadiusBottomLeft: =10
+                              RadiusBottomRight: =10
+                              RadiusTopLeft: =10
+                              RadiusTopRight: =10
+                              Width: =60
+                              X: =40
+                              Y: =40
+
+                  # =========================================================
+                  # MENU GALLERY SECTION
+                  # =========================================================
+                  - galMenu:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Properties:
+                        AlignInContainer: =AlignInContainer.SetByContainer
+                        BorderColor: =RGBA(245, 245, 245, 1)
+                        DelayItemLoading: =false
+                        Fill: =RGBA(255, 255, 255, 1)
+                        Height: =
+                        # ==================================================
+                        # INSTRUCTION: Items - uses component's MenuItems property
+                        # In your control, paste: cmpLeftNav.MenuItems
+                        #
+                        # When using this component, pass a table like:
+                        # Table(
+                        #     { Id: 1, Name: "Dashboard", Screen: Dashboard },
+                        #     { Id: 2, Name: "Reports", Screen: ReportsScreen },
+                        #     { Id: 3, Name: "Settings", Screen: SettingsScreen }
+                        # )
+                        # ==================================================
+                        Items: =cmpLeftNav.MenuItems
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        ShowNavigation: =true
+                        TemplatePadding: =0
+                        TemplateSize: =40
+                      Children:
+                        - conMenuItems:
+                            Control: GroupContainer@1.3.0
+                            Variant: ManualLayout
+                            Properties:
+                              # ==================================================
+                              # INSTRUCTION: BorderColor - shows border when selected
+                              # In your control, paste:
+                              # If(ThisItem.Id = cmpLeftNav.SelectedId, cmpLeftNav.BorderColor, Color.Transparent)
+                              # ==================================================
+                              BorderColor: =If(ThisItem.Id = cmpLeftNav.SelectedId, cmpLeftNav.BorderColor, Color.Transparent)
+                              DropShadow: =DropShadow.None
+                              # ==================================================
+                              # INSTRUCTION: Fill - uses component's color properties
+                              # In your control, paste:
+                              # If(ThisItem.Id = cmpLeftNav.SelectedId, cmpLeftNav.SelectedColor, cmpLeftNav.UnselectedColor)
+                              # ==================================================
+                              Fill: =If(ThisItem.Id = cmpLeftNav.SelectedId, cmpLeftNav.SelectedColor, cmpLeftNav.UnselectedColor)
+                              Height: =Parent.TemplateHeight - 10
+                              RadiusBottomLeft: =10
+                              RadiusBottomRight: =10
+                              RadiusTopLeft: =10
+                              RadiusTopRight: =10
+                              Width: =68
+                              X: =6
+                              Y: =5
+                            Children:
+                              - lblMenuText:
+                                  Control: Text@0.0.51
+                                  Properties:
+                                    Align: ='TextCanvas.Align'.Center
+                                    Fill: =If(ThisItem.Id = cmpLeftNav.SelectedId, Parent.Fill, Color.White)
+                                    Font: =Font.Lato
+                                    FontColor: =RGBA(0, 0, 0, 1)
+                                    Height: =30
+                                    Size: =10
+                                    # ==================================================
+                                    # INSTRUCTION: Text - displays menu item name
+                                    # In your control, paste: ThisItem.Name
+                                    # ==================================================
+                                    Text: =ThisItem.Name
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Weight: ='TextCanvas.Weight'.Bold
+                                    Width: =68
+
+                              - btnSelectItem:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    AutoDisableOnSelect: =false
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                    DisabledColor: =RGBA(0, 0, 0, 0)
+                                    DisabledFill: =Self.Fill
+                                    Fill: =RGBA(255, 255, 255, 0.05)
+                                    Font: =Font.'Segoe UI'
+                                    Height: =30
+                                    HoverBorderColor: =RGBA(255, 184, 174, 1)
+                                    HoverColor: =RGBA(255, 255, 255, 1)
+                                    # ==================================================
+                                    # INSTRUCTION: HoverFill - hover effect respects selected state
+                                    # In your control, paste:
+                                    # If(ThisItem.Id = cmpLeftNav.SelectedId, Color.Transparent, RGBA(255, 255, 255, 0.1))
+                                    # ==================================================
+                                    HoverFill: =If(ThisItem.Id = cmpLeftNav.SelectedId, Color.Transparent, RGBA(255, 255, 255, 0.1))
+                                    # ==================================================
+                                    # INSTRUCTION: OnSelect - SIMPLIFIED for reusability!
+                                    #
+                                    # OPTION A - If using with output property (recommended):
+                                    # The component triggers OnItemSelect. Handle navigation in parent.
+                                    # In your control, paste:
+                                    # Select(Parent, ThisItem.Id)
+                                    #
+                                    # Then in the PARENT screen where you USE this component,
+                                    # set the OnItemSelect property to your navigation logic:
+                                    # Set(varSelectedMenuId, Self.SelectedId);
+                                    # Navigate(LookUp(MyMenuItems, Id = Self.SelectedId).Screen)
+                                    #
+                                    # OPTION B - If you want navigation handled IN the component:
+                                    # Your MenuItems table MUST include a "Screen" column.
+                                    # In your control, paste:
+                                    # Navigate(ThisItem.Screen)
+                                    #
+                                    # NOTE: Parent must update SelectedId to reflect new selection
+                                    # ==================================================
+                                    OnSelect: =Select(Parent, ThisItem.Id)
+                                    PressedBorderColor: =RGBA(180, 214, 250, 1)
+                                    PressedColor: =RGBA(255, 255, 255, 1)
+                                    PressedFill: =ColorFade(Self.HoverFill, -50%)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Text: =
+                                    Width: =Parent.Width
+
+                  # =========================================================
+                  # USER AVATAR SECTION
+                  # =========================================================
+                  - conUserImage:
+                      Control: GroupContainer@1.3.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =70
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =1
+                        LayoutJustifyContent: =LayoutJustifyContent.Center
+                        LayoutMinHeight: =75
+                        LayoutMinWidth: =0
+                        RadiusBottomLeft: =15
+                        RadiusBottomRight: =15
+                        RadiusTopLeft: =15
+                        RadiusTopRight: =15
+                        Width: =Parent.Width
+                        Y: =0
+                        # ==================================================
+                        # INSTRUCTION: Visible - controlled by ShowUserAvatar property
+                        # In your control, paste: cmpLeftNav.ShowUserAvatar
+                        # ==================================================
+                        Visible: =cmpLeftNav.ShowUserAvatar
+                      Children:
+                        - avatarUser:
+                            Control: Avatar@1.0.40
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Center
+                              Appearance: ='Avatar.Appearance'.Neutral
+                              BasePaletteColor: =RGBA(189, 178, 176, 1)
+                              FillPortions: =1
+                              Height: =60
+                              LayoutMinWidth: =60
+                              Shape: ='Avatar.Shape'.Circular
+                              # ==================================================
+                              # INSTRUCTION: To show user's actual photo, use:
+                              # Image: User().Image
+                              # Or leave default for neutral avatar
+                              # ==================================================
+
+# =============================================================================
+# QUICK REFERENCE - COPY/PASTE VALUES FOR EACH CONTROL
+# =============================================================================
+#
+# imgCompanyLogo.Image:
+#   cmpLeftNav.CompanyLogo
+#
+# galMenu.Items:
+#   cmpLeftNav.MenuItems
+#
+# conMenuItems.BorderColor:
+#   If(ThisItem.Id = cmpLeftNav.SelectedId, cmpLeftNav.BorderColor, Color.Transparent)
+#
+# conMenuItems.Fill:
+#   If(ThisItem.Id = cmpLeftNav.SelectedId, cmpLeftNav.SelectedColor, cmpLeftNav.UnselectedColor)
+#
+# lblMenuText.Text:
+#   ThisItem.Name
+#
+# btnSelectItem.HoverFill:
+#   If(ThisItem.Id = cmpLeftNav.SelectedId, Color.Transparent, RGBA(255, 255, 255, 0.1))
+#
+# btnSelectItem.OnSelect:
+#   Select(Parent, ThisItem.Id)
+#
+# conUserImage.Visible:
+#   cmpLeftNav.ShowUserAvatar
+#
+# =============================================================================
+# USAGE EXAMPLE - In your app where you place this component:
+# =============================================================================
+#
+# 1. Add cmpLeftNav to your screen
+#
+# 2. Set these properties on the component instance:
+#
+#    CompanyLogo: YourLogoImage
+#
+#    MenuItems: Table(
+#        { Id: 1, Name: "Dashboard", Screen: DashboardScreen },
+#        { Id: 2, Name: "Production", Screen: ProductionScreen },
+#        { Id: 3, Name: "Reports", Screen: ReportsScreen },
+#        { Id: 4, Name: "Settings", Screen: SettingsScreen }
+#    )
+#
+#    SelectedId: varMenuSelected
+#
+#    SelectedColor: Color.LightBlue
+#
+#    UnselectedColor: Color.White
+#
+#    OnItemSelect:
+#        Set(varMenuSelected, Self.SelectedId);
+#        Navigate(
+#            LookUp(
+#                Table(
+#                    { Id: 1, Screen: DashboardScreen },
+#                    { Id: 2, Screen: ProductionScreen },
+#                    { Id: 3, Screen: ReportsScreen },
+#                    { Id: 4, Screen: SettingsScreen }
+#                ),
+#                Id = Self.SelectedId
+#            ).Screen
+#        )
+#
+# 3. Initialize varMenuSelected in App.OnStart:
+#    Set(varMenuSelected, 1)
+#
+# =============================================================================
